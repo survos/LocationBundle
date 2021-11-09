@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <!-- TODO: Add you parameters here -->
+        <parameter key="survos_location.bar" />
+        <parameter key="survos_location.integer_foo" />
+        <parameter key="survos_location.integer_bar" />
+    </parameters>
+    <services>
+        <!-- TODO: Add your services here -->
+        <!-- Service -->
+        <service id="survos_location.service" class="Survos\LocationBundle\Service\Service">
+            <!-- TODO: Add your service constructor parameters here -->
+            <argument key="$em" type="service" id="doctrine.orm.entity_manager"/>
+            <argument key="$token" type="service" id="security.token_storage"/>
+            <argument key="$requestStack" type="service" id="request_stack"/>
+            <argument key="$translator" type="service" id="translator"/>
+            <argument key="$bar" type="string">%survos_location.bar%</argument>
+            <argument key="$integerFoo" type="string">%survos_location.integer_foo%</argument>
+            <argument key="$integerBar" type="string">%survos_location.integer_bar%</argument>
+        </service>
+
+        <!-- TODO: Add the alias for your services here -->
+        <service id="Survos\LocationBundle\Service\Service" alias="survos_location.service" />
+        <!-- End Service -->
+
+        <!-- TODO: Add your controllers here -->
+        <!-- Controller -->
+        <service id="survos_location.controller" class="Survos\LocationBundle\Controller\SurvosLocationController" public="true">
+            <!-- TODO: Add your controller constructor parameters here -->
+            <argument key="$service" type="service" id="survos_location.service"/>
+        </service>
+
+        <!-- TODO: Add the alias for your controllers here -->
+        <service id="Survos\LocationBundle\Controller\SurvosLocationController" alias="survos_location.controller" public="true"/>
+        <!-- End Controller -->
+    </services>
+</container>

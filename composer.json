@@ -1,0 +1,54 @@
+{
+  "name": "survos/location-bundle",
+  "type": "symfony-bundle",
+  "description": "Use Geonames to in an application",
+  "keywords": ["city", "state"],
+  "homepage": "https://github.com/survos/SurvosLocationBundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tac Tacelosky",
+      "email": "tacman@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "symfony/framework-bundle": ">=4.0",
+    "symfony/yaml": ">=4.0"
+  },
+  "require-dev": {
+    "symfony/phpunit-bridge": ">=4.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.2"
+    },
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Survos\\LocationBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Survos\\LocationBundle\\Tests\\": "tests/"
+    }
+  },
+  "conflict": {
+    "symfony/symfony": "<4.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.1.x-dev"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

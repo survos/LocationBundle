@@ -2,20 +2,110 @@
 
 namespace Survos\LocationBundle\Controller;
 
+use Doctrine\ORM\QueryBuilder;
 use Survos\LocationBundle\DTO\CarDTO;
+use Survos\LocationBundle\Repository\LocationRepository;
 use Survos\LocationBundle\Service\Service;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class SurvosLocationController extends AbstractController
 {
-    // TODO: Define the services to be injected as properties
-    protected $service;
+    protected Service $service;
 
     public function __construct(Service $service)
     {
         $this->service = $service;
+    }
+
+
+    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
+    public function locationJson(Request $request, LocationRepository $locationRepository)
+    {
+        $limit = $request->query->get('limit', 30);
+//        $locationRepository = $this->getDoctrine()->getRepository(Location::class);
+        /** @var QueryBuilder $qb */
+        $qb = $locationRepository->createQueryBuilder('l');
+
+        $lvl = $request->get('lvl', null);
+        if (is_numeric($lvl)) {
+            $qb->andWhere('l.lvl = :lvl')
+                ->setParameter('lvl', $lvl);
+        }
+
+        // count the slashes to increase the level.  get parent
+        if ($q = $request->get('q')) {
+            $parts = explode('/', $q);
+
+            // US/NC filters by US-NC
+
+            $partCount = count($parts);
+
+
+            foreach($parts as $idx=>$part) {
+                if (empty($part)) {
+                    continue;
+                }
+                // exact match on code
+//                dd($parts, $partCount);
+                // last item in search can be for names too
+//                if ($idx == $partCount-1) {
+//                    $qb->andWhere('(l.name LIKE :part) OR (l.code like :part)')
+//                        ->setParameter('part', '%' . $part . '%');
+//
+//                }
+                if (0)
+                    if ($idx <= $partCount) {
+                        // build up the parent here, add it later to the query.
+                        $parent = $locationRepository->findOneBy(['code' => $part]);
+                        assert($parent, "Invalid parent code " . $part);
+
+                        $qb->andWhere("l.parent = :parent")
+                            ->setParameter('parent', $parent);
+                    }
+//                if ($parentCode = $request->get('parentCode')) {
+//                    $parent = $locationRepository->findBy(['code' => $parentCode]);
+//                }
+
+                // us/nc or /nc
+//                    $qb->andWhere("(l.lvl= :partLvl$idx) and (l.alpha2 = :part$idx)")
+//                        ->setParameter('partLvl' . $idx,  $idx)
+//                        ->setParameter('part' . $idx, $part);
+            }
+
+            // us/nc us/north carolina
+            // us//chicago
+            // //chicago
+
+//            $qb->andWhere('(l.name LIKE :q) OR (l.code like :q)')
+//                ->setParameter('q', '%' . $q . '%');
+        }
+
+        if ($parentCode = $request->get('parentCode')) {
+            $parent = $locationRepository->findBy(['code' => $parentCode]);
+            $qb->andWhere('l.parent = :parent')
+                ->setParameter('parent', $parent);
+        }
+
+        $qb->setMaxResults($limit);
+//        dd($qb->getQuery(), $qb->getQuery()->getParameters());
+        $locations = $qb->getQuery()->getResult();
+//        dd($q, $qb->getQuery()->getParameters(), $qb->getQuery()->getDQL(), $qb->getQuery()->getSQL(), $qb->getQuery()->getSQL(), count($locations), $locations);
+        $data = [];
+        /** @var Location $location */
+        foreach ($locations as $location) {
+            $data[] = [
+                'id' => $location->getCode(),
+                'text' => trim(sprintf("%s %s (%s) / %d #%d",
+                        $location->getCode(),
+                        $location->getName(), $location->getParent() !== null ? $location->getParent()->getCode() : '~', $location->getLvl(), $location->getId())
+                )
+            ];
+        }
+        return $this->jsonResponse($data, $request);
     }
 
     public function foo(RequestStack $requestStack, $a, $b)

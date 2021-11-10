@@ -13,6 +13,13 @@
     <services>
         <!-- TODO: Add your services here -->
         <!-- Service -->
+        <service class="Survos\LocationBundle\Service\CountryImport" id="survos_location.country_import" >
+            <argument key="$registry" type="service" id="Doctrine\Common\Persistence\ManagerRegistry"/>
+        </service>
+        <service class="Survos\LocationBundle\Service\AdministrativeImport" id="survos_location.service.administrative_import" >
+            <argument key="$registry" type="service" id="Doctrine\Common\Persistence\ManagerRegistry"/>
+        </service>
+
         <service id="survos_location.service" class="Survos\LocationBundle\Service\Service">
             <!-- TODO: Add your service constructor parameters here -->
             <argument key="$em" type="service" id="doctrine.orm.entity_manager"/>
@@ -33,6 +40,19 @@
         <service id="survos_location.controller" class="Survos\LocationBundle\Controller\SurvosLocationController" public="true">
             <!-- TODO: Add your controller constructor parameters here -->
             <argument key="$service" type="service" id="survos_location.service"/>
+        </service>
+
+        <!--  commands -->
+        <service id="survos_location.load_command" class="Survos\LocationBundle\Command\LoadCommand" public="true">
+            <argument key="$registry" type="service" id="Doctrine\Common\Persistence\ManagerRegistry"/>
+            <tag name="console.command" />
+        </service>
+
+        <service id="survos_location.command.import_geonames_command" class="Survos\LocationBundle\Command\ImportGeonamesCommand" public="true">
+            <argument type="service" id="parameter_bag" />
+            <argument type="service" id="survos_location.country_import" />
+            <argument type="service" id="survos_location.service.administrative_import" />
+            <tag name="console.command" />
         </service>
 
         <!-- TODO: Add the alias for your controllers here -->

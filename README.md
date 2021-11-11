@@ -24,6 +24,13 @@ Installation
 
 All the installation instructions are located in the documentation.
 
+composer config minimum-stability dev
+composer config prefer-stable true
+
+composer config repositories.survos_location_bundle '{"type": "vcs", "url": "git@github.com:survos/LocationBundle.git"}'
+composer req survos/location-bundle:"*@dev"
+
+
 License
 -------
 

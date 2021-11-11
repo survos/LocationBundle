@@ -62,7 +62,7 @@ class SurvosLocationController extends AbstractController
                 if (0)
                     if ($idx <= $partCount) {
                         // build up the parent here, add it later to the query.
-                        $parent = $locationRepository->findOneBy(['code' => $part]);
+                        $parent = $this->locationRepository->findOneBy(['code' => $part]);
                         assert($parent, "Invalid parent code " . $part);
 
                         $qb->andWhere("l.parent = :parent")
@@ -87,7 +87,7 @@ class SurvosLocationController extends AbstractController
         }
 
         if ($parentCode = $request->get('parentCode')) {
-            $parent = $locationRepository->findBy(['code' => $parentCode]);
+            $parent = $this->locationRepository->findBy(['code' => $parentCode]);
             $qb->andWhere('l.parent = :parent')
                 ->setParameter('parent', $parent);
         }

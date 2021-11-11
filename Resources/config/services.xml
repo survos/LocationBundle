@@ -29,7 +29,7 @@
             <argument key="$em" type="service" id="doctrine.orm.entity_manager"/>
             <argument key="$token" type="service" id="security.token_storage"/>
             <argument key="$requestStack" type="service" id="request_stack"/>
-            <argument key="$translator" type="service" id="translator"/>
+            <argument key="$translator" type="service" id="translator.default"/>
             <argument key="$bar" type="string">%survos_location.bar%</argument>
             <argument key="$integerFoo" type="string">%survos_location.integer_foo%</argument>
             <argument key="$integerBar" type="string">%survos_location.integer_bar%</argument>

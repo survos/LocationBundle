@@ -3,7 +3,7 @@
 namespace Survos\LocationBundle\Controller;
 
 use Doctrine\ORM\QueryBuilder;
-use Survos\LocationBundle\DTO\CarDTO;
+use Survos\LocationBundle\Entity\Location;
 use Survos\LocationBundle\Repository\LocationRepository;
 use Survos\LocationBundle\Service\Service;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,20 +15,22 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class SurvosLocationController extends AbstractController
 {
     protected Service $service;
+    private LocationRepository $locationRepository;
 
-    public function __construct(Service $service)
+    public function __construct(Service $service = null, LocationRepository $locationRepository)
     {
         $this->service = $service;
+        $this->locationRepository = $locationRepository;
     }
 
 
-    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
-    public function locationJson(Request $request, LocationRepository $locationRepository)
+//    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
+    public function locationJson(Request $request)
     {
         $limit = $request->query->get('limit', 30);
 //        $locationRepository = $this->getDoctrine()->getRepository(Location::class);
         /** @var QueryBuilder $qb */
-        $qb = $locationRepository->createQueryBuilder('l');
+        $qb = $this->locationRepository->createQueryBuilder('l');
 
         $lvl = $request->get('lvl', null);
         if (is_numeric($lvl)) {
@@ -105,7 +107,7 @@ class SurvosLocationController extends AbstractController
                 )
             ];
         }
-        return $this->jsonResponse($data, $request);
+        return $this->json($data);
     }
 
     public function foo(RequestStack $requestStack, $a, $b)

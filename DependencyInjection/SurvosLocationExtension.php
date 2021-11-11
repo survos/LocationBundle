@@ -5,6 +5,7 @@ namespace Survos\LocationBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
@@ -12,9 +13,15 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
 {
     public function load(array $configs, ContainerBuilder $container)
     {
+
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
         $config = $this->processConfiguration(new Configuration(), $configs);
+
+//        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+//        $loader->load('services.php');
+//        $config = $this->processConfiguration(new Configuration(), $configs);
+
         // TODO: Set custom parameters
          $container->setParameter('survos_location.bar', $config['bar']);
          $container->setParameter('survos_location.integer_foo', $config['integer_foo']);
@@ -25,6 +32,7 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
     {
         $configs = $container->getExtensionConfig($this->getAlias());
         $config = $this->processConfiguration(new Configuration(), $configs);
+
         // TODO: Set custom doctrine config
         $doctrineConfig = [];
         $doctrineConfig['orm']['resolve_target_entities']['Survos\LocationBundle\Entity\UserInterface'] = $config['user_provider'];

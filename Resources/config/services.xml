@@ -10,9 +10,13 @@
         <parameter key="survos_location.integer_foo" />
         <parameter key="survos_location.integer_bar" />
     </parameters>
+
     <services>
-        <!-- TODO: Add your services here -->
-        <!-- Service -->
+        <!-- Services -->
+        <service class="Survos\LocationBundle\Repository\LocationRepository" id="survos_location.repository.location_repository" >
+            <argument key="$registry" type="service" id="doctrine.orm.survos_location_entity_manager"/>
+        </service>
+
         <service class="Survos\LocationBundle\Service\CountryImport" id="survos_location.country_import" >
             <argument key="$registry" type="service" id="Doctrine\Common\Persistence\ManagerRegistry"/>
         </service>
@@ -33,14 +37,18 @@
 
         <!-- TODO: Add the alias for your services here -->
         <service id="Survos\LocationBundle\Service\Service" alias="survos_location.service" />
-        <!-- End Service -->
+        <service id="Survos\LocationBundle\Repository\LocationRepository" alias="survos_location.repository.location_repository" />
+        <!-- End Services -->
 
-        <!-- TODO: Add your controllers here -->
-        <!-- Controller -->
-        <service id="survos_location.controller" class="Survos\LocationBundle\Controller\SurvosLocationController" public="true">
-            <!-- TODO: Add your controller constructor parameters here -->
+        <!-- Controllers -->
+        <service id="survos_location.controller"
+                 autowire="true"
+                 class="Survos\LocationBundle\Controller\SurvosLocationController" public="true">
             <argument key="$service" type="service" id="survos_location.service"/>
+            <tag name="container.service_subscriber" />
+            <tag name="controller.service_arguments" />
         </service>
+        <service id="Survos\LocationBundle\Controller\SurvosLocationController" alias="survos_location.controller" public="true" />
 
         <!--  commands -->
         <service id="survos_location.load_command" class="Survos\LocationBundle\Command\LoadCommand" public="true">
@@ -55,8 +63,6 @@
             <tag name="console.command" />
         </service>
 
-        <!-- TODO: Add the alias for your controllers here -->
-        <service id="Survos\LocationBundle\Controller\SurvosLocationController" alias="survos_location.controller" public="true"/>
         <!-- End Controller -->
     </services>
 </container>

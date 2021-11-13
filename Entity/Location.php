@@ -27,8 +27,19 @@ class Location implements Stringable
         $this->code = $code;
         $this->name = $name;
         $this->lvl = $lvl;
-
     }
+
+    public static function build(string $code, string $name, ?int $lvl): self
+    {
+        $location = (new Location($code, $name, $lvl))
+//            ->setCode($code)
+//            ->setName($name)
+//            ->setLvl($lvl)
+        ;
+
+        return $location;
+    }
+
 
     /**
      * @ORM\Id()

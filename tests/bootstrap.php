@@ -1,13 +1,11 @@
 <?php
 
-if (!($loader = @include __DIR__.'/../vendor/autoload.php')) {
-    echo <<<'EOT'
-You need to install the project dependencies using Composer:
-$ wget http://getcomposer.org/composer.phar
-OR
-$ curl -s https://getcomposer.org/installer | php
-$ php composer.phar install --dev
-$ phpunit
-EOT;
-    exit(1);
+use Symfony\Component\Dotenv\Dotenv;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+if (file_exists(dirname(__DIR__).'/config/bootstrap.php')) {
+    require dirname(__DIR__).'/config/bootstrap.php';
+} elseif (method_exists(Dotenv::class, 'bootEnv')) {
+    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 }

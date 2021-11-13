@@ -14,13 +14,13 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
     public function load(array $configs, ContainerBuilder $container)
     {
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.xml');
-        $config = $this->processConfiguration(new Configuration(), $configs);
-
-//        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-//        $loader->load('services.php');
+//        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+//        $loader->load('services.xml');
 //        $config = $this->processConfiguration(new Configuration(), $configs);
+
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.php');
+        $config = $this->processConfiguration(new Configuration(), $configs);
 
         // TODO: Set custom parameters
          $container->setParameter('survos_location.bar', $config['bar']);

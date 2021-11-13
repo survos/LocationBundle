@@ -4,7 +4,7 @@ namespace Survos\LocationBundle\Tests;
 
 use Survos\LocationBundle\Service\Service;
 use Survos\LocationBundle\Tests\Mock\UserMock;
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +30,13 @@ class ServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\WebTestCase
 
     protected function setDefaultMocks()
     {
+
+        $repositoryMock = $this
+            ->getMockBuilder(ObjectRepository::class)
+            ->setMethods(['findBy'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $emRepositoryMock = $this->getMockBuilder(ObjectRepository::class)->getMock();
         $this->emMock = $this->getMockBuilder(EntityManagerInterface::class)->getMock();
         $this->emMock->method('getRepository')->willReturn($emRepositoryMock);

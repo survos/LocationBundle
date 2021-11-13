@@ -17,7 +17,9 @@
     "symfony/yaml": ">=4.0"
   },
   "require-dev": {
-    "symfony/phpunit-bridge": ">=4.0"
+    "phpunit/phpunit": "^9.5",
+    "symfony/phpunit-bridge": ">=4.0",
+    "symplify/config-transformer": "^9.4"
   },
   "config": {
     "platform": {

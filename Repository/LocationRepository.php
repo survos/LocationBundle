@@ -33,6 +33,8 @@ class LocationRepository extends NestedTreeRepository
 //        dd($registry, $registry::class, $manager);
     }
 
+
+
     // /**
     //  * @return Location[] Returns an array of Location objects
     //  */

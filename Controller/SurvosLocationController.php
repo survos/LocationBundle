@@ -7,8 +7,10 @@ use Survos\LocationBundle\Entity\Location;
 use Survos\LocationBundle\Repository\LocationRepository;
 use Survos\LocationBundle\Service\Service;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -25,7 +27,7 @@ class SurvosLocationController extends AbstractController
 
 
 //    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
-    public function locationJson(Request $request)
+    public function locationJson(Request $request, $_format='json')
     {
         $limit = $request->query->get('limit', 30);
 //        $locationRepository = $this->getDoctrine()->getRepository(Location::class);
@@ -33,19 +35,28 @@ class SurvosLocationController extends AbstractController
         $qb = $this->locationRepository->createQueryBuilder('l');
 
         $lvl = $request->get('lvl', null);
+        $q = $request->get('q', false);
         if (is_numeric($lvl)) {
             $qb->andWhere('l.lvl = :lvl')
                 ->setParameter('lvl', $lvl);
-        }
+            if ($q) {
+                $qb->andWhere('l.name LIKE :name OR l.alpha2 = :alpha2')
+                    ->setParameter('name', $q . '%')
+                ->setParameter('alpha2', $q)
+                    ;
 
-        // count the slashes to increase the level.  get parent
-        if ($q = $request->get('q')) {
+                // add code search
+            }
+        } elseif ($q) {
+
+            // if we have a level, search for an exact code or the name
+
+
             $parts = explode('/', $q);
 
             // US/NC filters by US-NC
 
             $partCount = count($parts);
-
 
             foreach($parts as $idx=>$part) {
                 if (empty($part)) {
@@ -59,7 +70,6 @@ class SurvosLocationController extends AbstractController
 //                        ->setParameter('part', '%' . $part . '%');
 //
 //                }
-                if (0)
                     if ($idx <= $partCount) {
                         // build up the parent here, add it later to the query.
                         $parent = $this->locationRepository->findOneBy(['code' => $part]);
@@ -101,14 +111,25 @@ class SurvosLocationController extends AbstractController
         foreach ($locations as $location) {
             $data[] = [
                 'id' => $location->getCode(),
-                'text' => trim(sprintf("%s %s (%s) / %d #%d",
+                'text' => trim(sprintf("%s %s (%s) / %d %s#%d",
                         $location->getCode(),
-                        $location->getName(), $location->getParent() !== null ? $location->getParent()->getCode() : '~', $location->getLvl(), $location->getId())
+                        $location->getName(), $location->getParent() !== null ? $location->getParent()->getCode() : '~', $location->getLvl(), $location->getAlpha2(), $location->getId())
                 )
             ];
         }
-        return $this->json($data);
+        return $this->jsonResponse($data, $request);
     }
+
+    private function jsonResponse($data, Request $request = null, $format='html')
+    {
+        if ($request && $request->isXmlHttpRequest()) {
+            $format = 'json';
+        }
+        return $format === 'json'
+            ? new JsonResponse($data)
+            : new Response(sprintf('<html lang="en"><body><pre>%s</pre></body></html>', json_encode($data, JSON_UNESCAPED_SLASHES + JSON_PRETTY_PRINT )) );
+    }
+
 
     public function foo(RequestStack $requestStack, $a, $b)
     {

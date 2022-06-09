@@ -18,6 +18,11 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $builder->getRootNode();
         $rootNode->children()
+            ->scalarNode('db')
+                ->isRequired()
+                ->defaultValue('location.db')
+            ->end()
+
             ->scalarNode('user_provider')
                 ->isRequired()
                 ->defaultValue('\App\Entity\User')

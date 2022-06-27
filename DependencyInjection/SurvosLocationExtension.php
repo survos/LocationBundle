@@ -23,9 +23,9 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         // TODO: Set custom parameters
-         $container->setParameter('survos_location.bar', $config['bar']);
-         $container->setParameter('survos_location.integer_foo', $config['integer_foo']);
-         $container->setParameter('survos_location.integer_bar', $config['integer_bar']);
+//         $container->setParameter('survos_location.bar', $config['bar']);
+//         $container->setParameter('survos_location.integer_foo', $config['integer_foo']);
+//         $container->setParameter('survos_location.integer_bar', $config['integer_bar']);
     }
 
     public function prepend(ContainerBuilder $container)
@@ -35,11 +35,11 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
 
         // TODO: Set custom doctrine config
         $doctrineConfig = [];
-        $doctrineConfig['orm']['resolve_target_entities']['Survos\LocationBundle\Entity\UserInterface'] = $config['user_provider'];
+//        $doctrineConfig['orm']['resolve_target_entities']['Survos\LocationBundle\Entity\UserInterface'] = $config['user_provider'];
         $doctrineConfig['orm']['mappings'][] = array(
             'name' => 'SurvosLocationBundle',
             'is_bundle' => true,
-            'type' => 'xml',
+//            'type' => 'xml',
             'prefix' => 'Survos\LocationBundle\Entity'
         );
         $container->prependExtensionConfig('doctrine', $doctrineConfig);

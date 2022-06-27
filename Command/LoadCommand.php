@@ -19,7 +19,7 @@ use Symfony\Component\Intl\Countries;
 
 #[AsCommand(
     name: 'survos:location:load',
-    description: 'Add a short description for your command',
+    description: 'Load Symfony countries, ISO 2nd level, and world cities.',
 )]
 class LoadCommand extends Command
 {

@@ -5,7 +5,10 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Doctrine\ORM\EntityManager;
+use Gedmo\Tree\TreeListener;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\Reference;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
@@ -18,12 +21,26 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services = $containerConfigurator->services();
 
+//    $services->set('doctrine.orm.survos_location_entity_manager', EntityManager::class)
+//        ->tag()
+
     $services->set('survos_location.repository.location_repository',
         'Survos\LocationBundle\Repository\LocationRepository')
         ->arg('$registry', service('doctrine.orm.survos_location_entity_manager'));
 
     $services->set('survos_location.country_import', 'Survos\LocationBundle\Service\CountryImport')
         ->arg('$registry', service('Doctrine\Common\Persistence\ManagerRegistry'));
+
+    $services->set('gedmo.listener.tree', TreeListener::class)
+        ->tag('doctrine.event_subscriber', ['connection' => 'location'])
+        ->call('setAnnotationReader', [new Reference('annotation_reader')]);
+
+//    gedmo.listener.tree:
+//        class: Gedmo\Tree\TreeListener
+//        tags:
+//            - { name: doctrine.event_subscriber, connection: default }
+//        calls:
+//            - [ setAnnotationReader, [ "@annotation_reader" ] ]
 
     $services->set('survos_location.service.administrative_import', 'Survos\LocationBundle\Service\AdministrativeImport')
         ->arg('$registry', service('Doctrine\Common\Persistence\ManagerRegistry'));

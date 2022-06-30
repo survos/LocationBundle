@@ -151,7 +151,7 @@ class LoadCommand extends Command
 
         // https://datahub.io/core/world-cities or https://simplemaps.com/data/us-cities
 //            $fn = 'https://datahub.io/core/world-cities/r/world-cities.json'; //  or https://simplemaps.com/data/us-cities';
-        $fn = __DIR__ . '/../data/world-cities.json';
+        $fn = __DIR__ . '/../../data/world-cities.json';
 //        if (!file_exists($fn)) {
 //
 //        }

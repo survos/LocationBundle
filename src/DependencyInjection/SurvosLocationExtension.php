@@ -71,7 +71,7 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
         $container->prependExtensionConfig('twig', $twigConfig);
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'survos_location';
     }

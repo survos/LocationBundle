@@ -68,13 +68,13 @@ class LoadCommand extends Command
         $this->output = new ConsoleOutput();
         $this->manager = $manager;
         $this->locationRepository->createQueryBuilder('l')
-            ->where('l.lvl = 3')
+//            ->where('l.lvl = 3')
             ->delete()->getQuery()->execute();
         $this->em->flush();
 //        $this->flushLevel(0);
 
-//        $this->loadCountries();
-//        $this->loadIso3166();
+        $this->loadCountries();
+        $this->loadIso3166();
         $this->loadCities();
     }
 

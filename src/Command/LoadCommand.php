@@ -30,7 +30,7 @@ class LoadCommand extends Command
     private array $levels = ['Continent', 'Country','State','City'];
 
     public function __construct(ManagerRegistry $registry,
-                                private ValidatorInterface $validator,
+//                                private ValidatorInterface $validator,
                                 string $name=null)
     {
         // since we don't know EM is associated with the Location    table, pass in the registry instead.
@@ -88,10 +88,10 @@ class LoadCommand extends Command
             $location = new Location($countryCode, $name, $lvl);
             $location
                 ->setCountryCode($alpha2);
-            $errors = $this->validator->validate($location);
-            if (count($errors)) {
-                assert(false, (string) $errors);
-            }
+//            $errors = $this->validator->validate($location);
+//            if (count($errors)) {
+//                assert(false, (string) $errors);
+//            }
 
             $this->manager->persist($location);
         }
@@ -139,10 +139,10 @@ class LoadCommand extends Command
 
                 $seen[$uniqueStateCode] = $location;
 
-                $errors = $this->validator->validate($location);
-                if (count($errors)) {
-                    assert(false, $uniqueStateCode . '  ' . (string) $errors);
-                }
+//                $errors = $this->validator->validate($location);
+//                if (count($errors)) {
+//                    assert(false, $uniqueStateCode . '  ' . (string) $errors);
+//                }
 
                 $this->lvlCache[$lvl][$stateName] = $location;
 //                try {

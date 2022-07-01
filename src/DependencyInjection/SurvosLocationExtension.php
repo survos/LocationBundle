@@ -24,6 +24,8 @@ class SurvosLocationExtension extends Extension implements PrependExtensionInter
         $config = $this->processConfiguration(new Configuration(), $configs);
 
 
+
+
         // TODO: Set custom parameters
 //         $container->setParameter('survos_location.bar', $config['bar']);
 //         $container->setParameter('survos_location.integer_foo', $config['integer_foo']);

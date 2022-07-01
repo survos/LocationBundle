@@ -5,6 +5,7 @@ namespace Survos\LocationBundle\Entity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Doctrine\DBAL\Types\Types;
 use Stringable;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -17,16 +18,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: 'Survos\LocationBundle\Repository\LocationRepository')]
-#[ORM\Table(indexes: [new ORM\Index(name: 'location_name_idx', columns: ['name']), new ORM\Index(name: 'location_lvl_idex', columns: ['lvl'])])]
+#[ORM\Table(indexes: [
+    new ORM\Index(name: 'location_country_code', columns: ['country_code']),
+    new ORM\Index(name: 'location_state_code', columns: ['state_code']),
+    new ORM\Index(name: 'location_name_idx', columns: ['name']),
+    new ORM\Index(name: 'location_lvl_idex', columns: ['lvl'])])
+]
 #[Gedmo\Tree(type: 'nested')]
 #[UniqueEntity('code')]
-#  [ORM\UniqueConstraint(name: 'location_code', columns: ['code'])]
+#[ORM\UniqueConstraint(name: 'location_code', columns: ['code'])]
 #[ApiResource(
     normalizationContext: ['skip_null_values' => false, 'groups' => ['rp', 'location.read', 'location.tree']],
 )]
-#[ApiFilter(OrderFilter::class, properties: ['code', 'name'], arguments: ['orderParameterName' => 'order'])]
-#[ApiFilter(MultiFieldSearchFilter::class, properties: ["code", 'name'], arguments: ["searchParameterName"=>"search"])]
-#[ApiFilter(SearchFilter::class, properties: ['name'=>'partial','code' => 'exact','lvl' => 'exact'])]
+#[ApiFilter(OrderFilter::class, properties: ['code', 'stateCode', 'name'], arguments: ['orderParameterName' => 'order'])]
+#[ApiFilter(MultiFieldSearchFilter::class, properties: ["code", 'countryCode', 'stateCode', 'name'], arguments: ["searchParameterName"=>"search"])]
+#[ApiFilter(SearchFilter::class, properties: ['name'=>'partial', 'countryCode' => 'exact', 'stateCode' => 'partial', 'code' => 'partial','lvl' => 'exact'])]
 
 class Location implements Stringable
 {
@@ -153,12 +159,32 @@ class Location implements Stringable
         $this->lvl = $lvl;
         return $this;
     }
-    /**
-     * @var int|mixed|null
-     */
-    #[ORM\Column(name: 'rgt', type: 'integer')]
+    #[ORM\Column(name: 'rgt', type: Types::INTEGER)]
     #[Gedmo\TreeRight]
     private $rgt;
+
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Groups(['location.read'])]
+    private int $childCount=0;
+
+    /**
+     * @return int
+     */
+    public function getChildCount(): int
+    {
+        return $this->childCount;
+    }
+
+    /**
+     * @param int $childCount
+     * @return Location
+     */
+    public function setChildCount(int $childCount): Location
+    {
+        $this->childCount = $childCount;
+        return $this;
+    }
+
     /**
      * @var \Survos\LocationBundle\Entity\Location|mixed|null
      */
@@ -169,14 +195,40 @@ class Location implements Stringable
     #[ORM\ManyToOne(targetEntity: 'Location', inversedBy: 'children', cascade: ['persist'], fetch: 'LAZY')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[Gedmo\TreeParent]
-    private ?\Survos\LocationBundle\Entity\Location $parent = null;
+    private ?Location $parent = null;
     /**
      * @var \Survos\LocationBundle\Entity\Location[]|Collection|mixed|null
      */
     #[ORM\OneToMany(targetEntity: 'Location', mappedBy: 'parent', cascade: ['persist', 'remove'], fetch: 'LAZY')]
     private ?Collection $children = null;
+
     #[ORM\Column(type: 'string', length: 2, nullable: true)]
-    private ?string $alpha2 = null;
+    #[Groups(['location.read'])]
+    private ?string $countryCode = null;
+
+    // really the 2nd-level administrative code, unique within country
+    #[ORM\Column(type: 'string', length: 3, nullable: true)]
+    #[Groups(['location.read'])]
+    private ?string $stateCode = null;
+
+    /**
+     * @return string|null
+     */
+    public function getStateCode(): ?string
+    {
+        return $this->stateCode;
+    }
+
+    /**
+     * @param string|null $stateCode
+     * @return Location
+     */
+    public function setStateCode(?string $stateCode): Location
+    {
+        $this->stateCode = $stateCode;
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -201,13 +253,13 @@ class Location implements Stringable
 
         return $this;
     }
-    public function getAlpha2(): ?string
+    public function getCountryCode(): ?string
     {
-        return $this->alpha2;
+        return $this->countryCode;
     }
-    public function setAlpha2(?string $alpha2): self
+    public function setCountryCode(?string $countryCode): self
     {
-        $this->alpha2 = $alpha2;
+        $this->countryCode = $countryCode;
 
         return $this;
     }

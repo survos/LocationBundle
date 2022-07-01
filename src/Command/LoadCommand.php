@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Survos\LocationBundle\Entity\Location;
+use Survos\LocationBundle\Repository\LocationRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,6 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class LoadCommand extends Command
 {
     private EntityManagerInterface $em;
+    private LocationRepository $locationRepository;
     private array $levels = ['Continent', 'Country','State','City'];
 
     public function __construct(ManagerRegistry $registry,
@@ -32,8 +34,10 @@ class LoadCommand extends Command
                                 string $name=null)
     {
         // since we don't know EM is associated with the Location    table, pass in the registry instead.
-        parent::__construct($name);
         $this->em = $registry->getManager('survos_location');
+        $this->locationRepository = $this->em->getRepository(Location::class);
+
+        parent::__construct($name);
     }
 
     protected function configure(): void
@@ -63,40 +67,150 @@ class LoadCommand extends Command
     {
         $this->output = new ConsoleOutput();
         $this->manager = $manager;
-        $this->locationRepository = $manager->getRepository(Location::class);
-        $this->locationRepository->createQueryBuilder('l')->delete()->getQuery()->execute();
+        $this->locationRepository->createQueryBuilder('l')
+            ->where('l.lvl = 3')
+            ->delete()->getQuery()->execute();
         $this->em->flush();
-        $this->flushLevel(0);
+//        $this->flushLevel(0);
 
-        $this->loadCountries();
-        $this->loadIso3166();
-//        $this->loadCities();
+//        $this->loadCountries();
+//        $this->loadIso3166();
+        $this->loadCities();
     }
 
 
-    private function loadCountries(): void
+    private function loadCountries($lvl = 1): void
     {
-        $lvl = 1;
-        $this->lvlCache[$lvl] = [];
         $this->output->writeln("Loading Countries from Symfony Intl component");
         $countries = Countries::getNames();
         foreach ($countries as $alpha2=>$name) {
             $countryCode = $alpha2;
             $location = new Location($countryCode, $name, $lvl);
             $location
-                ->setAlpha2($alpha2);
+                ->setCountryCode($alpha2);
             $errors = $this->validator->validate($location);
             if (count($errors)) {
                 assert(false, (string) $errors);
             }
 
             $this->manager->persist($location);
-            $this->lvlCache[$lvl][$location->getCode()] = $location;
         }
         $this->flushLevel($lvl);
     }
 
-    function flushLevel(int $lvl): void
+    // l "states/regions/subcountries" (lvl-2),
+    private function loadIso3166($lvl = 2): void
+    {
+        $json = file_get_contents('https://raw.githubusercontent.com/olahol/iso-3166-2.json/master/iso-3166-2.json');
+        // $json = file_get_contents('public/iso-3166-2.json');
+        $regions = [];
+        $regionsByName = [];
+
+        $countries = [];
+        /** @var Location $countryLocation */
+        foreach ($this->locationRepository->findBy(['lvl' => 1]) as $countryLocation) {
+            $countries[$countryLocation->getCountryCode()] = $countryLocation;
+        }
+//        dump(array_keys($countries));
+        assert(count($countries), "no countries loaded.");
+
+        foreach (json_decode($json) as $countryCode => $country) {
+            $this->output->writeln("Reading $countryCode " . count((array)$country->divisions));
+
+            $parent = $countries[$countryCode] ?? false;
+            if (!$parent) {
+                continue; // missing TP, East Timor.
+            }
+
+            $seen = array_keys($countries);
+            $childCount = 0;
+            foreach ($country->divisions as $uniqueStateCode => $stateName) {
+                $childCount++;
+                $stateCode = str_replace($parent->getCode() . '-', '', $uniqueStateCode);
+
+//                dump($uniqueStateCode, $stateName, $lvl);
+                assert(!array_key_exists($uniqueStateCode, $seen), "duplicate: " . $uniqueStateCode);
+                $location = (new Location($uniqueStateCode, $stateName, $lvl))
+                    ->setCountryCode($parent->getCountryCode())
+                    ->setStateCode($stateCode)
+                    ->setParent($parent)
+                ;
+                $this->manager->persist($location);
+
+                $seen[$uniqueStateCode] = $location;
+
+                $errors = $this->validator->validate($location);
+                if (count($errors)) {
+                    assert(false, $uniqueStateCode . '  ' . (string) $errors);
+                }
+
+                $this->lvlCache[$lvl][$stateName] = $location;
+//                try {
+//                    $this->flushLevel($lvl);
+//                } catch (\Exception $exception) {
+//                    dd($uniqueStateCode, $location, $exception);
+//                }
+            }
+            $parent->setChildCount($childCount);
+        }
+        $this->flushLevel($lvl);
+
+    }
+
+    public function loadCities(): void
+    {
+        $lvl = 3;
+        $fn = __DIR__ . '/../../data/world-cities.json';
+        $json = file_get_contents($fn);
+        $data = json_decode($json);
+        $this->output->writeln("Reading level $lvl " . count($data));
+
+        $states = [];
+        /** @var Location $state */
+        foreach ($this->locationRepository->findBy(['lvl' => 2]) as $state) {
+            $states[$state->getName()] = $state;
+            // hack
+            if ($state->getStateCode() === 'DC') {
+                $states['Washington, D.C.'] = $state;
+
+            }
+        }
+
+        foreach ($data as $idx => $cityData) {
+//            $city = (new City())
+//                ->setName($cityData->name)
+//                ->setCode($cityData->geonameid)
+//                ->setCountry($cityData->country)
+//                ->setSubcountry($cityData->subcountry);
+//            $this->manager->persist($city);
+            // $this->output->writeln(sprintf("%d) Found %s in %s, %s ", $idx, $cityData->name, $cityData->subcountry, $cityData->country));
+
+            // $country = $countriesByName[$data->country];
+            if ($parent = $states[$cityData->subcountry] ?? false) {
+                $cityCode = $cityData->geonameid; // unique, could also be based on country / state / cityName
+                $parent->setChildCount($parent->getChildCount() + 1);
+
+                $cityLoc = (new Location($cityCode, $cityData->name, $lvl))
+                    ->setStateCode($parent->getStateCode())
+                    ->setCountryCode($parent->getParent()->getCountryCode())
+                    ->setParent($parent)
+                ;
+                // set by ID?
+                $this->manager->persist($cityLoc);
+            } else {
+                if ($cityData->country == 'United States') {
+                    dump($cityData);
+                }
+//                assert($parent, $cityData->subcountry . " missing in " . implode("\n", array_keys($this->lvlCache[$lvl-1])));
+                // we could create a fake subcountry, but really we need to find level 2
+//                $this->output->writeln(sprintf("Unable to find subcountry %s %s in country (%s)", $cityData->subcountry, $cityData->geonameid, $cityData->country));
+            }
+            // $this->manager->flush();
+        }
+        $this->flushLevel($lvl);
+    }
+
+    private function flushLevel(int $lvl): void
     {
         $this->output->writeln("Flushing level $lvl " . $this->levels[$lvl]);
         $this->manager->flush(); // set the IDs
@@ -113,94 +227,7 @@ class LoadCommand extends Command
 
     }
 
-    // l "states/regions/subcountries" (lvl-2), and 15000 largest cities(lvl-3).
-    private function loadIso3166(): void
-    {
-        $lvl = 2;
-        $this->lvlCache[$lvl] = [];
 
-        $countriesByName = [];
-        $json = file_get_contents('https://raw.githubusercontent.com/olahol/iso-3166-2.json/master/iso-3166-2.json');
-        // $json = file_get_contents('public/iso-3166-2.json');
-        $regions = [];
-        $regionsByName = [];
 
-        foreach (json_decode($json) as $countryCode => $country) {
-
-            $parent = $this->lvlCache[$lvl-1][$countryCode] ?? false;
-            if (!$parent) {
-                continue; // missing TP, East Timor.
-            }
-            assert($parent, "Missing $countryCode, $country->name in " . implode(',', array_keys($this->lvlCache[$lvl-1])));
-
-            foreach ($country->divisions as $stateCode => $stateName) {
-                dump($stateCode, $stateName, $lvl);
-                $location = (new Location($stateCode, $stateName, $lvl))
-                    ->setParent($parent);
-
-                $errors = $this->validator->validate($location);
-                if (count($errors)) {
-                    assert(false, $stateCode . '  ' . (string) $errors);
-                }
-
-                $this->manager->persist($location);
-                $this->lvlCache[$lvl][$stateName] = $location;
-                try {
-                    $this->flushLevel($lvl);
-                } catch (\Exception $exception) {
-                    dd($stateCode, $location, $exception);
-                }
-            }
-        }
-    }
-
-    public function loadCities(): void
-    {
-        $lvl = 3;
-//        $this->lvlCache[$lvl] = [];
-
-        // dump($regions['United States']);
-
-        // now that we have the names loaded into the arrays, we can use them for lookups
-
-        // https://datahub.io/core/world-cities or https://simplemaps.com/data/us-cities
-//            $fn = 'https://datahub.io/core/world-cities/r/world-cities.json'; //  or https://simplemaps.com/data/us-cities';
-        $fn = __DIR__ . '/../../data/world-cities.json';
-//        if (!file_exists($fn)) {
-//
-//        }
-//        assert(file_exists($fn), $fn);
-        $json = file_get_contents($fn);
-        $data = json_decode($json);
-
-        foreach ($data as $idx => $cityData) {
-//            $city = (new City())
-//                ->setName($cityData->name)
-//                ->setCode($cityData->geonameid)
-//                ->setCountry($cityData->country)
-//                ->setSubcountry($cityData->subcountry);
-//            $this->manager->persist($city);
-            // $this->output->writeln(sprintf("%d) Found %s in %s, %s ", $idx, $cityData->name, $cityData->subcountry, $cityData->country));
-
-            // $country = $countriesByName[$data->country];
-            if ($parent = $this->lvlCache[$lvl-1][$cityData->subcountry] ?? false) {
-                $cityCode = $cityData->geonameid; // unique, could also be based on country / state / cityName
-                $cityLoc = (new Location($cityCode, $cityData->name, $lvl))
-                    ->setParent($parent)
-                ;
-                // set by ID?
-                $this->manager->persist($cityLoc);
-            } else {
-                continue;
-                $this->flushLevel($lvl);
-                dd($cityData);
-                assert($parent, $cityData->subcountry . " missing in " . implode("\n", array_keys($this->lvlCache[$lvl-1])));
-                // we could create a fake subcountry, but really we need to find level 2
-//                $this->output->writeln(sprintf("Unable to find subcountry %s %s in country (%s)", $cityData->subcountry, $cityData->geonameid, $cityData->country));
-            }
-            // $this->manager->flush();
-        }
-        $this->flushLevel($lvl);
-    }
 
 }

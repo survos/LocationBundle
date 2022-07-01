@@ -29,25 +29,48 @@ class SurvosLocationController extends AbstractController
 //    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
     public function locationJson(Request $request, $_format='json')
     {
+        $lvl = $request->get('lvl', null);
+        $q = $request->get('q', false);
+        // if there's a slash, it should be a country or state code.
+        if (preg_match('|(.*?)/(.*?)$|', $q, $m)) {
+            $shortCode=strtoupper($m[1]);
+            $op = 'AND';
+            $q = $m[2];
+        } else {
+            $op = 'OR';
+            $shortCode = $q;
+        }
+//        dd($shortCode, $q, $op, $lvl);
+//        $parts = explode('/', $q);
+//        $partCount = count($parts);
+
         $limit = $request->query->get('limit', 30);
 //        $locationRepository = $this->getDoctrine()->getRepository(Location::class);
         /** @var QueryBuilder $qb */
         $qb = $this->locationRepository->createQueryBuilder('l');
 
-        $lvl = $request->get('lvl', null);
-        $q = $request->get('q', false);
         if (is_numeric($lvl)) {
-            $qb->andWhere('l.lvl = :lvl')
-                ->setParameter('lvl', $lvl);
-            if ($q) {
-                $qb->andWhere('l.name LIKE :name OR l.alpha2 = :alpha2')
-                    ->setParameter('name', $q . '%')
-                ->setParameter('alpha2', $q)
+            if ($lvl) $qb->andWhere('l.lvl = :lvl')->setParameter('lvl', $lvl);
+        }
+
+            if ($q || $shortCode) {
+                $qb->andWhere("l.name LIKE :name $op (
+                l.countryCode = :code
+                OR l.stateCode = :code
+                OR l.code = :code
+                )"
+                )
+                ->setParameter('name', $q . '%')
+                ->setParameter('code', strtoupper($shortCode))
                     ;
 
                 // add code search
             }
-        } elseif ($q) {
+//            dd($qb->getQuery());
+//        }
+//        elseif ($q)
+    if (0)
+        {
 
             // if we have a level, search for an exact code or the name
 
@@ -113,7 +136,9 @@ class SurvosLocationController extends AbstractController
                 'id' => $location->getCode(),
                 'text' => trim(sprintf("%s %s (%s) / %d %s#%d",
                         $location->getCode(),
-                        $location->getName(), $location->getParent() !== null ? $location->getParent()->getCode() : '~', $location->getLvl(), $location->getAlpha2(), $location->getId())
+                        $location->getName(),
+                        'X', // $location->getParent() !== null ? $location->getParent()->getCode() : '~',
+                        $location->getLvl(), $location->getCountryCode(), $location->getId())
                 )
             ];
         }

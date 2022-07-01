@@ -108,32 +108,39 @@ class LoadCommand extends Command
 
         $countries = [];
         /** @var Location $countryLocation */
-        foreach ($this->locationRepository->findBy(['lvl' => 1]) as $countryLocation) {
-            $countries[$countryLocation->getCountryCode()] = $countryLocation;
+        foreach ($this->locationRepository->createQueryBuilder('l')
+            ->select('l.countryCode', 'l.id', 'l.countryCode')
+            ->where('l.lvl = 1')
+                     ->getQuery()->getResult() as $x) {
+            $countries[$x['countryCode']] = [
+                'id' => $x['id'],
+                'code' => $x['countryCode']
+            ];
         }
+//        findBy(['lvl' => 1]) as $countryLocation) {
+//            $countries[$countryLocation->getCountryCode()] = $countryLocation;
+//        }
 //        dump(array_keys($countries));
         assert(count($countries), "no countries loaded.");
 
         foreach (json_decode($json) as $countryCode => $country) {
             $this->output->writeln("Reading $countryCode " . count((array)$country->divisions));
 
-            $parent = $countries[$countryCode] ?? false;
-            if (!$parent) {
+            if (!array_key_exists($countryCode, $countries)) {
                 continue; // missing TP, East Timor.
             }
+            $parentData = $countries[$countryCode];
 
-            $seen = array_keys($countries);
             $childCount = 0;
             foreach ($country->divisions as $uniqueStateCode => $stateName) {
                 $childCount++;
-                $stateCode = str_replace($parent->getCode() . '-', '', $uniqueStateCode);
+                $stateCode = preg_replace('/.*?-/', '', $uniqueStateCode);
 
 //                dump($uniqueStateCode, $stateName, $lvl);
-                assert(!array_key_exists($uniqueStateCode, $seen), "duplicate: " . $uniqueStateCode);
                 $location = (new Location($uniqueStateCode, $stateName, $lvl))
-                    ->setCountryCode($parent->getCountryCode())
+                    ->setCountryCode($parentData['code'])
                     ->setStateCode($stateCode)
-                    ->setParent($parent)
+                    ->setParent($this->em->getReference(Location::class, $parentData['id']))
                 ;
                 $this->manager->persist($location);
 
@@ -151,7 +158,7 @@ class LoadCommand extends Command
 //                    dd($uniqueStateCode, $location, $exception);
 //                }
             }
-            $parent->setChildCount($childCount);
+//            $parent->setChildCount($childCount);
         }
         $this->flushLevel($lvl);
 
@@ -167,12 +174,19 @@ class LoadCommand extends Command
 
         $states = [];
         /** @var Location $state */
-        foreach ($this->locationRepository->findBy(['lvl' => 2]) as $state) {
-            $states[$state->getName()] = $state;
-            // hack
-            if ($state->getStateCode() === 'DC') {
-                $states['Washington, D.C.'] = $state;
+        foreach ($this->locationRepository->createQueryBuilder('l')
+                     ->select('l.name', 'l.id', 'l.countryCode', 'l.stateCode')
+                     ->where('l.lvl = 2')
+                     ->getQuery()->getResult() as $x) {
+            $states[$x['name']] = [
+                'id' => $x['id'],
+                'stateCode' => $x['stateCode'],
+                'countryCode' => $x['countryCode'],
+            ];
 
+            // hack
+            if ($x['stateCode'] === 'DC') {
+                $states['Washington, D.C.'] = $states[$x['name']];
             }
         }
 
@@ -186,38 +200,36 @@ class LoadCommand extends Command
             // $this->output->writeln(sprintf("%d) Found %s in %s, %s ", $idx, $cityData->name, $cityData->subcountry, $cityData->country));
 
             // $country = $countriesByName[$data->country];
-            if ($parent = $states[$cityData->subcountry] ?? false) {
+            if (!array_key_exists($cityData->subcountry, $states)) {
+                if ($cityData->country == 'United States') {
+//                    dump($cityData);
+                }
+            } else {
+                $parentData = $states[$cityData->subcountry];
                 $cityCode = $cityData->geonameid; // unique, could also be based on country / state / cityName
-                $parent->setChildCount($parent->getChildCount() + 1);
+//                $parent->setChildCount($parent->getChildCount() + 1);
 
                 $cityLoc = (new Location($cityCode, $cityData->name, $lvl))
-                    ->setStateCode($parent->getStateCode())
-                    ->setCountryCode($parent->getParent()->getCountryCode())
-                    ->setParent($parent)
-                ;
-                // set by ID?
+                    ->setStateCode($parentData['stateCode'])
+                    ->setCountryCode($parentData['countryCode'])
+                    ->setParent($this->em->getReference(Location::class, $parentData['id']));
                 $this->manager->persist($cityLoc);
-            } else {
-                if ($cityData->country == 'United States') {
-                    dump($cityData);
-                }
-//                assert($parent, $cityData->subcountry . " missing in " . implode("\n", array_keys($this->lvlCache[$lvl-1])));
-                // we could create a fake subcountry, but really we need to find level 2
-//                $this->output->writeln(sprintf("Unable to find subcountry %s %s in country (%s)", $cityData->subcountry, $cityData->geonameid, $cityData->country));
             }
-            // $this->manager->flush();
+            if ($idx % 2500 == 0) {
+                $this->flushLevel($lvl, $idx);
+            }
         }
         $this->flushLevel($lvl);
     }
 
-    private function flushLevel(int $lvl): void
+    private function flushLevel(int $lvl, $idx=0): void
     {
         $this->output->writeln("Flushing level $lvl " . $this->levels[$lvl]);
         $this->manager->flush(); // set the IDs
         $this->manager->clear();
         //        $count = $this->locationRepository->count(['lvl'=> $lvl]);
-        $count = $this->locationRepository->count([]);
-        $this->output->writeln(sprintf("After level $lvl Count is: %d", $count));
+        $count = -1; // $this->locationRepository->count([]);
+        $this->output->writeln(sprintf("After level $lvl idx is: %d", $idx));
         if ($lvl) {
             assert($count, "no $lvl locations!");
         } else {

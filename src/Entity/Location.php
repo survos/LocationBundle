@@ -11,6 +11,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Survos\Grid\Api\Filter\MultiFieldSearchFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -18,12 +19,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: 'Survos\LocationBundle\Repository\LocationRepository')]
 #[ORM\Table(indexes: [new ORM\Index(name: 'location_name_idx', columns: ['name']), new ORM\Index(name: 'location_lvl_idex', columns: ['lvl'])])]
 #[Gedmo\Tree(type: 'nested')]
+#[UniqueEntity('code')]
+#  [ORM\UniqueConstraint(name: 'location_code', columns: ['code'])]
 #[ApiResource(
     normalizationContext: ['skip_null_values' => false, 'groups' => ['rp', 'location.read', 'location.tree']],
 )]
 #[ApiFilter(OrderFilter::class, properties: ['code', 'name'], arguments: ['orderParameterName' => 'order'])]
 #[ApiFilter(MultiFieldSearchFilter::class, properties: ["code", 'name'], arguments: ["searchParameterName"=>"search"])]
-#[ApiFilter(SearchFilter::class, properties: ['name'=>'partial','code' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: ['name'=>'partial','code' => 'exact','lvl' => 'exact'])]
 
 class Location implements Stringable
 {
@@ -46,6 +49,7 @@ class Location implements Stringable
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['location.read'])]
     private ?int $id = null;
     #[ORM\Column(type: 'string', length: 180)]
     #[Assert\NotBlank]
@@ -55,6 +59,7 @@ class Location implements Stringable
     #[Assert\NotBlank]
     #[Groups(['location.read'])]
     private string $code;
+
     #[ORM\Column(type: 'integer', nullable: false)]
     #[Groups(['location.read'])]
     private int $lvl;

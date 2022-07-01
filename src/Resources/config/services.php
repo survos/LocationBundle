@@ -64,7 +64,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('survos_location.load_command', 'Survos\LocationBundle\Command\LoadCommand')
         ->public()
         ->tag('console.command')
-        ->arg('$registry', service('Doctrine\Common\Persistence\ManagerRegistry'));
+        ->arg('$registry', service('Doctrine\Common\Persistence\ManagerRegistry'))
+        ->arg('$validator', service('debug.validator'))
+    ;
 
     $services->set('survos_location.command.import_geonames_command', 'Survos\LocationBundle\Command\ImportGeonamesCommand')
         ->public()

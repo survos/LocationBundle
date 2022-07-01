@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Intl\Countries;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsCommand(
     name: 'survos:location:load',
@@ -26,7 +27,9 @@ class LoadCommand extends Command
     private EntityManagerInterface $em;
     private array $levels = ['Continent', 'Country','State','City'];
 
-    public function __construct(ManagerRegistry $registry, string $name=null)
+    public function __construct(ManagerRegistry $registry,
+                                private ValidatorInterface $validator,
+                                string $name=null)
     {
         // since we don't know EM is associated with the Location    table, pass in the registry instead.
         parent::__construct($name);
@@ -47,17 +50,6 @@ class LoadCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $this->load($this->em);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
-
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
 
         return Command::SUCCESS;
     }
@@ -74,10 +66,11 @@ class LoadCommand extends Command
         $this->locationRepository = $manager->getRepository(Location::class);
         $this->locationRepository->createQueryBuilder('l')->delete()->getQuery()->execute();
         $this->em->flush();
+        $this->flushLevel(0);
 
         $this->loadCountries();
         $this->loadIso3166();
-        $this->loadCities();
+//        $this->loadCities();
     }
 
 
@@ -92,6 +85,11 @@ class LoadCommand extends Command
             $location = new Location($countryCode, $name, $lvl);
             $location
                 ->setAlpha2($alpha2);
+            $errors = $this->validator->validate($location);
+            if (count($errors)) {
+                assert(false, (string) $errors);
+            }
+
             $this->manager->persist($location);
             $this->lvlCache[$lvl][$location->getCode()] = $location;
         }
@@ -106,7 +104,12 @@ class LoadCommand extends Command
         //        $count = $this->locationRepository->count(['lvl'=> $lvl]);
         $count = $this->locationRepository->count([]);
         $this->output->writeln(sprintf("After level $lvl Count is: %d", $count));
-        assert($count, "no $lvl locations!");
+        if ($lvl) {
+            assert($count, "no $lvl locations!");
+        } else {
+            assert($count === 0, "should be empty");
+        }
+
 
     }
 
@@ -131,13 +134,24 @@ class LoadCommand extends Command
             assert($parent, "Missing $countryCode, $country->name in " . implode(',', array_keys($this->lvlCache[$lvl-1])));
 
             foreach ($country->divisions as $stateCode => $stateName) {
+                dump($stateCode, $stateName, $lvl);
                 $location = (new Location($stateCode, $stateName, $lvl))
                     ->setParent($parent);
+
+                $errors = $this->validator->validate($location);
+                if (count($errors)) {
+                    assert(false, $stateCode . '  ' . (string) $errors);
+                }
+
                 $this->manager->persist($location);
                 $this->lvlCache[$lvl][$stateName] = $location;
+                try {
+                    $this->flushLevel($lvl);
+                } catch (\Exception $exception) {
+                    dd($stateCode, $location, $exception);
+                }
             }
         }
-        $this->flushLevel($lvl);
     }
 
     public function loadCities(): void

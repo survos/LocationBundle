@@ -48,7 +48,7 @@ class ImportGeonamesCommand extends Command
     /**
      * Configuration method
      */
-    protected function configure()
+    protected function configure(): void
     {
 
         $this
@@ -147,7 +147,7 @@ class ImportGeonamesCommand extends Command
      * @param OutputInterface $output
      * @author Chris Bednarczyk <chris@tourradar.com>
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->endpoint = $input->getOption('endpoint');
 
@@ -191,7 +191,6 @@ class ImportGeonamesCommand extends Command
             );
         }
 
-//        return self::SUCCESS;
 
         //importing
 
@@ -309,7 +308,7 @@ class ImportGeonamesCommand extends Command
 
         $output->writeln("Imported successfully! Thank you :) ");
 
-        return 0;
+        return self::SUCCESS;
 
     }
 

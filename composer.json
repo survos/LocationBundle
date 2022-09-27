@@ -1,72 +1,85 @@
 {
-  "name": "survos/location-bundle",
-  "type": "symfony-bundle",
-  "description": "Use Geonames to in an application",
-  "keywords": ["city", "state"],
-  "homepage": "https://github.com/survos/SurvosLocationBundle",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Tac Tacelosky",
-      "email": "tacman@gmail.com"
-    }
-  ],
-  "require": {
-    "php": "^8.1",
-    "doctrine/orm": "^2.12",
-    "doctrine/persistence": "^2.0 || ^3.0",
-    "stof/doctrine-extensions-bundle": "^1.7",
-    "survos/api-grid-bundle": "1.1.x-dev",
-    "symfony/flex": "^2.0",
-    "symfony/form": "^6.1.0",
-    "symfony/framework-bundle": "^6.1.0",
-    "symfony/validator": "^6.1.0",
-    "symfony/yaml": "^6.1.0"
-  },
-  "require-dev": {
-    "api-platform/core": "^2.7 || ^3.0",
-    "phpstan/phpstan": "^1.8",
-    "phpunit/phpunit": "^9.5",
-    "rector/rector": "^0.13.9",
-    "symfony/phpunit-bridge": "^6.1.0",
-    "symplify/config-transformer": "^11.1"
-  },
-  "config": {
-    "preferred-install": {
-      "*": "dist"
+    "name": "survos/location-bundle",
+    "type": "symfony-bundle",
+    "description": "Use Geonames to in an application",
+    "keywords": ["city", "state"],
+    "homepage": "https://github.com/survos/SurvosLocationBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tac Tacelosky",
+            "email": "tacman@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "doctrine/orm": "^2.12",
+        "doctrine/persistence": "^2.0 || ^3.0",
+        "stof/doctrine-extensions-bundle": "^1.7",
+        "survos/api-grid-bundle": "^1.2.8",
+        "symfony/flex": "^2.0",
+        "symfony/form": "^6.1.0",
+        "symfony/framework-bundle": "^6.1.0",
+        "symfony/validator": "^6.1.0",
+        "symfony/yaml": "^6.1.0"
     },
-    "sort-packages": true,
-    "allow-plugins": {
-      "symfony/flex": true
-    }
-  },
-  "autoload": {
-    "psr-4": {
-      "Survos\\LocationBundle\\": "src"
+    "require-dev": {
+        "api-platform/core": "^2.7 || ^3.0",
+        "phpstan/phpstan": "^1.8",
+        "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.13.9",
+        "symfony/phpunit-bridge": "^6.1.0",
+        "symplify/config-transformer": "^11.1"
     },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Survos\\LocationBundle\\Tests\\": "tests/"
-    }
-  },
-  "conflict": {
-    "symfony/symfony": "<4.0"
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "1.1.x-dev"
-    }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "scripts": {
-    "auto-scripts": {
-      "cache:clear": "symfony-cmd",
-      "assets:install %PUBLIC_DIR%": "symfony-cmd"
-    }
-  }
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Survos\\LocationBundle\\": "src"
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Survos\\LocationBundle\\Tests\\": "tests/"
+        }
+    },
+    "conflict": {
+        "symfony/symfony": "<4.0",
+        "survos/maker-bundle": "<1.2.8",
+        "survos/html-prettify-bundle": "<1.2.8",
+        "survos/barcode-bundle": "<1.2.8",
+        "survos/bootstrap-bundle": "<1.2.8",
+        "survos/inspection-bundle": "<1.2.8",
+        "survos/faker-bundle": "<1.2.8",
+        "survos/doc-bundle": "<1.2.8",
+        "survos/auth-bundle": "<1.2.8",
+        "survos/grid-bundle": "<1.2.8",
+        "survos/workflow-helper-bundle": "<1.2.8",
+        "survos/core-bundle": "<1.2.8",
+        "survos/crawler-bundle": "<1.2.8",
+        "survos/tree-bundle": "<1.2.8"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.1.x-dev"
+        }
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

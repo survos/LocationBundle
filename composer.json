@@ -19,7 +19,7 @@
         "doctrine/orm": "^2.12",
         "doctrine/persistence": "^2.0 || ^3.0",
         "stof/doctrine-extensions-bundle": "^1.7",
-        "survos/api-grid-bundle": "^1.2.49",
+        "survos/api-grid-bundle": "^1.2",
         "symfony/flex": "^2.0",
         "symfony/form": "^6.1.0",
         "symfony/framework-bundle": "^6.1.0",
@@ -78,11 +78,6 @@
         "survos/wiki-bundle": "<1.2.49",
         "survos/import-bridge": "<1.2.49",
         "survos/grid-group-bundle": "<1.2.49"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.1.x-dev"
-        }
     },
     "scripts": {
         "auto-scripts": {

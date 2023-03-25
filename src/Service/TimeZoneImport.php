@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Survos\LocationBundle\Import;
+namespace Survos\LocationBundle\Service;
 
 
 use Survos\LocationBundle\Entity\Timezone;
@@ -39,7 +39,7 @@ class TimeZoneImport implements ImportInterface
      * @return bool
      * @author Chris Bednarczyk <chris@tourradar.com>
      */
-    public function import($filePath, callable $progress = null)
+    public function import($filePath, callable $progress = null): bool
     {
         $file = new SplFileObject($filePath);
         $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);

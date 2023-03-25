@@ -1,8 +1,6 @@
 <?php
 
-
-namespace Survos\LocationBundle\Import;
-
+namespace Survos\LocationBundle\Service;
 
 use Survos\LocationBundle\Entity\Administrative;
 use Survos\LocationBundle\Entity\GeoName;
@@ -21,7 +19,6 @@ use SplFileObject;
  */
 class GeoNameImport implements ImportInterface
 {
-
     /**
      * @var EntityManager
      */
@@ -158,10 +155,10 @@ class GeoNameImport implements ImportInterface
                 $buffer = [];
                 is_callable($progress) && $progress(($pos) / $max);
             }
-
         }
 
-        !empty($buffer) && $this->save($buffer);;
+        !empty($buffer) && $this->save($buffer);
+        ;
         $connection->commit();
 
         return true;
@@ -250,5 +247,4 @@ class GeoNameImport implements ImportInterface
         }
         return $this->em->getConnection()->quote($val);
     }
-
 }

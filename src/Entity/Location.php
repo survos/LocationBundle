@@ -21,6 +21,7 @@ use Survos\ApiGrid\Api\Filter\MultiFieldSearchFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+
 #[ApiResource(normalizationContext: ['skip_null_values' => false, 'groups' => ['rp', 'location.read', 'location.tree']])]
 #[ORM\Entity(repositoryClass: 'Survos\\LocationBundle\\Repository\\LocationRepository')]
 #[ORM\Table(indexes: [new ORM\Index(name: 'location_country_code', columns: ['country_code']), new ORM\Index(name: 'location_state_code', columns: ['state_code']), new ORM\Index(name: 'location_name_idx', columns: ['name']), new ORM\Index(name: 'location_lvl_idex', columns: ['lvl'])])]
@@ -38,7 +39,7 @@ class Location implements Stringable
         $this->name = $name;
         $this->lvl = $lvl;
     }
-    public static function build(string $code, string $name, ?int $lvl) : self
+    public static function build(string $code, string $name, ?int $lvl): self
     {
         $location = new Location($code, $name, $lvl);
         return $location;
@@ -75,7 +76,7 @@ class Location implements Stringable
     /**
      * @param mixed $lft
      */
-    public function setLft($lft) : static
+    public function setLft($lft): static
     {
         $this->lft = $lft;
         return $this;
@@ -90,7 +91,7 @@ class Location implements Stringable
     /**
      * @param mixed $rgt
      */
-    public function setRgt($rgt) : static
+    public function setRgt($rgt): static
     {
         $this->rgt = $rgt;
         return $this;
@@ -105,7 +106,7 @@ class Location implements Stringable
     /**
      * @param mixed $root
      */
-    public function setRoot($root) : static
+    public function setRoot($root): static
     {
         $this->root = $root;
         return $this;
@@ -113,11 +114,11 @@ class Location implements Stringable
     /**
      * @return mixed
      */
-    public function getParent() : ?Location
+    public function getParent(): ?Location
     {
         return $this->parent;
     }
-    public function setParent(?Location $parent) : self
+    public function setParent(?Location $parent): self
     {
         $this->parent = $parent;
         return $this;
@@ -125,14 +126,14 @@ class Location implements Stringable
     /**
      * @return mixed|null
      */
-    public function getChildren() : ?Collection
+    public function getChildren(): ?Collection
     {
         return $this->children;
     }
     /**
      * @param mixed $children
      */
-    public function setChildren($children) : static
+    public function setChildren($children): static
     {
         $this->children = $children;
         return $this;
@@ -140,11 +141,11 @@ class Location implements Stringable
     /**
      * @return mixed
      */
-    public function getLvl() : ?int
+    public function getLvl(): ?int
     {
         return $this->lvl;
     }
-    public function setLvl(?int $lvl) : static
+    public function setLvl(?int $lvl): static
     {
         $this->lvl = $lvl;
         return $this;
@@ -158,7 +159,7 @@ class Location implements Stringable
     /**
      * @return int
      */
-    public function getChildCount() : int
+    public function getChildCount(): int
     {
         return $this->childCount;
     }
@@ -166,7 +167,7 @@ class Location implements Stringable
      * @param int $childCount
      * @return Location
      */
-    public function setChildCount(int $childCount) : Location
+    public function setChildCount(int $childCount): Location
     {
         $this->childCount = $childCount;
         return $this;
@@ -197,7 +198,7 @@ class Location implements Stringable
     /**
      * @return string|null
      */
-    public function getStateCode() : ?string
+    public function getStateCode(): ?string
     {
         return $this->stateCode;
     }
@@ -205,43 +206,43 @@ class Location implements Stringable
      * @param string|null $stateCode
      * @return Location
      */
-    public function setStateCode(?string $stateCode) : Location
+    public function setStateCode(?string $stateCode): Location
     {
         $this->stateCode = $stateCode;
         return $this;
     }
-    public function getId() : ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
-    public function getCode() : ?string
+    public function getCode(): ?string
     {
         return $this->code;
     }
-    public function setCode(string $code) : self
+    public function setCode(string $code): self
     {
         $this->code = $code;
         return $this;
     }
-    public function getName() : ?string
+    public function getName(): ?string
     {
         return $this->name;
     }
-    public function setName(string $name) : self
+    public function setName(string $name): self
     {
         $this->name = $name;
         return $this;
     }
-    public function getCountryCode() : ?string
+    public function getCountryCode(): ?string
     {
         return $this->countryCode;
     }
-    public function setCountryCode(?string $countryCode) : self
+    public function setCountryCode(?string $countryCode): self
     {
         $this->countryCode = $countryCode;
         return $this;
     }
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getName();
     }

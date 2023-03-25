@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Survos\LocationBundle\Import;
+namespace Survos\LocationBundle\Service;
 
 
 use Survos\LocationBundle\Entity\Timezone;

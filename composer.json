@@ -2,10 +2,7 @@
     "name": "survos/location-bundle",
     "type": "symfony-bundle",
     "description": "Use Geonames to in an application",
-    "keywords": [
-        "city",
-        "state"
-    ],
+    "keywords": ["city", "state"],
     "homepage": "https://github.com/survos/SurvosLocationBundle",
     "license": "MIT",
     "authors": [

@@ -10,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Promise\Promise;
 use SplFileObject;
 use Survos\LocationBundle\Entity\Location;
+use Survos\LocationBundle\Repository\LocationRepository;
 use Survos\LocationBundle\Service\ImportInterface;
 
 /**
@@ -25,7 +26,9 @@ class AdministrativeImport implements ImportInterface
      */
     protected $em;
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+//        private LocationRepository $locationRepository,
+        ManagerRegistry $registry)
     {
         // since we don't know EM is associated with the Location table, pass in the registry instead.
         $this->em = $registry->getManagerForClass(Location::class);
@@ -48,7 +51,9 @@ class AdministrativeImport implements ImportInterface
         $max = $file->key();
         $file->seek(1); //skip header
 
-        $administrative = $this->em->getRepository("BordeuxGeoNameBundle:Administrative");
+
+
+//        $administrative = $this->em->getRepository("BordeuxGeoNameBundle:Administrative");
 
         $pos = 0;
 
@@ -61,8 +66,9 @@ class AdministrativeImport implements ImportInterface
                 $geoNameId
                 ) = $row;
 
+            dd($row);
 
-            $object = $administrative->findOneBy(['code' => $code]) ?: new Administrative();
+            $object = $this->locationRepository->findOneBy(['code' => $code]) ?: new Location();
             $object->setCode($code);
             $object->setName($name);
             $object->setAsciiName($asciiName);

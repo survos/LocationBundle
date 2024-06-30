@@ -18,18 +18,19 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Survos\ApiGrid\Api\Filter\MultiFieldSearchFilter;
+use Survos\LocationBundle\Repository\LocationRepository;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(normalizationContext: ['skip_null_values' => false, 'groups' => ['rp', 'location.read', 'location.tree']])]
-#[ORM\Entity(repositoryClass: 'Survos\\LocationBundle\\Repository\\LocationRepository')]
+#[ORM\Entity(repositoryClass: LocationRepository::class)]
 #[ORM\Table(indexes: [new ORM\Index(name: 'location_country_code', columns: ['country_code']), new ORM\Index(name: 'location_state_code', columns: ['state_code']), new ORM\Index(name: 'location_name_idx', columns: ['name']), new ORM\Index(name: 'location_lvl_idex', columns: ['lvl'])])]
 #[Gedmo\Tree(type: 'nested')]
 #[UniqueEntity('code')]
 #[ORM\UniqueConstraint(name: 'location_code', columns: ['code'])]
 #[ApiFilter(OrderFilter::class, properties: ['code', 'stateCode', 'name'], arguments: ['orderParameterName' => 'order'])]
-#[ApiFilter(MultiFieldSearchFilter::class, properties: ["code", 'countryCode', 'stateCode', 'name'], arguments: ["searchParameterName" => "search"])]
+//#[ApiFilter(MultiFieldSearchFilter::class, properties: ["code", 'countryCode', 'stateCode', 'name'], arguments: ["searchParameterName" => "search"])]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial', 'countryCode' => 'exact', 'stateCode' => 'partial', 'code' => 'partial', 'lvl' => 'exact'])]
 class Location implements Stringable
 {

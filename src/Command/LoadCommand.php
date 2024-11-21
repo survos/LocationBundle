@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsCommand(
     name: 'survos:location:load',
-    description: 'Load Symfony countries, ISO 2nd level, and world cities.',
+    description: 'Load Symfony countries, ISO 2nd level, and world cities as locations',
 )]
 class LoadCommand extends Command
 {

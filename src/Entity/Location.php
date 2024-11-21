@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\DBAL\Types\Types;
-use Stringable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -32,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(OrderFilter::class, properties: ['code', 'stateCode', 'name'], arguments: ['orderParameterName' => 'order'])]
 //#[ApiFilter(MultiFieldSearchFilter::class, properties: ["code", 'countryCode', 'stateCode', 'name'], arguments: ["searchParameterName" => "search"])]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial', 'countryCode' => 'exact', 'stateCode' => 'partial', 'code' => 'partial', 'lvl' => 'exact'])]
-class Location implements Stringable
+class Location implements \Stringable
 {
     public function __construct($code = null, $name = null, ?int $lvl = null)
     {

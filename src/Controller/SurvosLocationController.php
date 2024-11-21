@@ -26,7 +26,7 @@ class SurvosLocationController extends AbstractController
     }
 
 
-//    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
+    #[Route(path: '/location-json.{_format}', name: 'location_json', defaults: ['_format' => 'html'])]
     public function locationJson(Request $request, $_format='json')
     {
         $lvl = $request->get('lvl', null);

@@ -1,7 +1,11 @@
 SurvosLocationBundle
 ===================
 
-The SurvosLocationBundle adds support for ...
+The SurvosLocationBundle uses the data from https://download.geonames.org/export/dump/ to create a Nested Tree with location data.
+
+```bash
+composer req survos/location-bundle
+```
 
 ![Alt text](Resources/doc/logo.png?raw=true "Screenshot")
 

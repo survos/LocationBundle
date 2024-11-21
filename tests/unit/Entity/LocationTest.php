@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Entity;
 
 use DateTime;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validation;
 use Survos\LocationBundle\Entity\Location;
@@ -11,7 +12,8 @@ use Survos\LocationBundle\Entity\Location;
 class LocationTest extends TestCase
 {
     // build
-    public function testBuildAssignsTheParametersToTheCorrectFields()
+    #[Test()]
+    public function buildAssignsTheParametersToTheCorrectFields()
     {
 
         // Arrange
@@ -24,6 +26,9 @@ class LocationTest extends TestCase
 
         // Assert
         $this->assertEquals($testCode, $result->getCode());
+
+        $location = new Location($testCode, $testName, $testLevel);
+        $this->assertEquals($result, $location);
     }
 
 }

@@ -3,6 +3,7 @@
     "type": "symfony-bundle",
     "description": "Use Geonames to in an application",
     "keywords": [
+        "symfony",
         "city",
         "state"
     ],
@@ -15,21 +16,24 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "doctrine/orm": "^2.12 || ^3.0",
         "doctrine/persistence": "^2.0 || ^3.0",
         "stof/doctrine-extensions-bundle": "^1.7",
+        "symfony/console": "^6.4 || ^7.1",
+        "symfony/doctrine-bridge": "^6.4 || ^7.1",
         "symfony/flex": "^2.0",
-        "symfony/form": "^6.3 || ^7.0",
-        "symfony/framework-bundle": "^6.3 || ^7.0",
-        "symfony/validator": "^6.3 || ^7.0",
-        "symfony/yaml": "^6.3 || ^7.0"
+        "symfony/form": "^6.4 || ^7.1",
+        "symfony/framework-bundle": "^6.4 || ^7.1",
+        "symfony/validator": "^6.4 || ^7.1",
+        "symfony/yaml": "^6.4 || ^7.1"
     },
     "require-dev": {
         "api-platform/core": "^3.1.11",
-        "phpstan/phpstan": "^1.8",
-        "phpunit/phpunit": "^9.5||^10.0||^11.0",
-        "symfony/phpunit-bridge": "^6.4 || ^7.0",
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^11.2",
+        "survos/api-grid-bundle": "^1.5",
+        "symfony/phpunit-bridge": "^6.4 || ^7.1",
         "symplify/config-transformer": "^11.1"
     },
     "config": {
@@ -44,46 +48,19 @@
     "autoload": {
         "psr-4": {
             "Survos\\LocationBundle\\": "src/"
-        },
-        "exclude-from-classmap": [
-            "/Tests/"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
             "Survos\\LocationBundle\\Tests\\": "tests/"
         }
     },
-    "conflict": {
-        "symfony/symfony": "<4.0",
-        "survos/maker-bundle": "<1.2.57",
-        "survos/html-prettify-bundle": "<1.2.57",
-        "survos/barcode-bundle": "<1.2.57",
-        "survos/bootstrap-bundle": "<1.2.57",
-        "survos/inspection-bundle": "<1.2.57",
-        "survos/faker-bundle": "<1.2.57",
-        "survos/doc-bundle": "<1.2.57",
-        "survos/auth-bundle": "<1.2.57",
-        "survos/grid-bundle": "<1.2.57",
-        "survos/workflow-helper-bundle": "<1.2.57",
-        "survos/core-bundle": "<1.2.57",
-        "survos/crawler-bundle": "<1.2.57",
-        "survos/tree-bundle": "<1.2.57",
-        "survos/command-bundle": "<1.2.57",
-        "survos/ruler-bundle": "<1.2.57",
-        "survos/providence-bundle": "<1.2.57",
-        "survos/stripe-product": "<1.2.57",
-        "survos/wiki-bundle": "<1.2.57",
-        "survos/import-bridge": "<1.2.57",
-        "survos/grid-group-bundle": "<1.2.57",
-        "survos/api-grid-bundle": "<1.2.57"
-    },
     "scripts": {
+        "phpstan": "vendor/bin/phpstan",
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         }
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }

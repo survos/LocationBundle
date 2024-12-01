@@ -29,7 +29,7 @@
         "symfony/yaml": "^6.4 || ^7.1"
     },
     "require-dev": {
-        "api-platform/core": "^3.2",
+        "api-platform/core": "^3.2||^4.0",
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11.4",
         "survos/api-grid-bundle": "^1.5",

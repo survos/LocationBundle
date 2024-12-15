@@ -31,7 +31,7 @@ class LoadCommand extends Command
 
     public function __construct(ManagerRegistry $registry,
 //                                private ValidatorInterface $validator,
-                                string $name=null)
+                                ?string $name=null)
     {
         // since we don't know EM is associated with the Location    table, pass in the registry instead.
         $this->em = $registry->getManager('survos_location');

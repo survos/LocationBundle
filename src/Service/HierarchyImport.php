@@ -24,7 +24,7 @@ class HierarchyImport extends GeoNameImport
      * @return bool
      * @author Chris Bednarczyk <chris@tourradar.com>
      */
-    public function import($filePath, callable $progress = null): bool
+    public function import($filePath, ?callable $progress = null): bool
     {
 
         $avrOneLineSize = 29.4;

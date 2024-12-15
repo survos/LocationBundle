@@ -37,7 +37,7 @@ class CountryImport implements ImportInterface
      * @return bool
      * @author Chris Bednarczyk <chris@tourradar.com>
      */
-    public function import($filePath, callable $progress = null): bool
+    public function import($filePath, ?callable $progress = null): bool
     {
         assert(is_file($filePath), $filePath);
         $file = new SplFileObject($filePath);

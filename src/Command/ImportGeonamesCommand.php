@@ -35,7 +35,7 @@ class ImportGeonamesCommand extends Command
         private ParameterBagInterface $bag,
         private CountryImport $countryImport,
         private AdministrativeImport $administrativeImport,
-        string $name = null)
+        ?string $name = null)
     {
         parent::__construct($name);
     }

@@ -19,7 +19,8 @@ class SurvosLocationController extends AbstractController
     protected Service $service;
     private LocationRepository $locationRepository;
 
-    public function __construct(?Service $service = null, LocationRepository $locationRepository)
+    public function __construct(Service $service,
+                                LocationRepository $locationRepository)
     {
         $this->service = $service;
         $this->locationRepository = $locationRepository;

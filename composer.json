@@ -16,9 +16,9 @@
     ],
     "type": "symfony-bundle",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "doctrine/orm": "^2.12 || ^3.3",
-        "doctrine/persistence": "^2.0 || ^3.0",
+        "doctrine/persistence": "^4.1",
         "stof/doctrine-extensions-bundle": "^1.8",
         "symfony/console": "^7.3",
         "symfony/doctrine-bridge": "^7.3",
@@ -29,9 +29,9 @@
         "symfony/yaml": "^7.3"
     },
     "require-dev": {
-        "api-platform/core": "^3.2||^4.0",
+        "api-platform/core": "^4.0",
         "phpstan/phpstan": "^2.0",
-        "phpunit/phpunit": "^11.4",
+        "phpunit/phpunit": "^12",
         "survos/api-grid-bundle": "^1.5",
         "symfony/phpunit-bridge": "^7.3",
         "symplify/config-transformer": "^11.1"
